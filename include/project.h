@@ -71,3 +71,6 @@ private:
 	// Add a status to new project: Opened, Shipped, Handovered, Paid, and Archived
 	string status;
 };
+
+
+#endif 
