@@ -1,99 +1,73 @@
-#ifndef INTERFACE_QUYENJD_H
-#define INTERFACE_QUYENJD_H
+#ifndef PROJECT_H
+#define PROJECT_H
 
-#include "csv.h"
-#include <iostream>
-#include <cstdlib>
-#include <cstring>
+#include <string>
+#include <date.h>
 
-#define Max(a,b) ((a)>(b)?(a):(b))
+using namespace std;
 
-// overload operator>> (read) for multitype.
-// after this operation, multitype always has the type of "str".
-std::istream& operator>> (std::istream& in, Csv::multitype& e);
-
-// overload operator<< (write) for multitype.
-std::ostream& operator<< (std::ostream& out, const Csv::multitype& e);
-
-// getline for multitype.
-void readline (std::istream& in, Csv::multitype& e);
-
-namespace Interface
+//Base clss
+class project
 {
-    using namespace Csv;
+	//friend: read new created project
+	friend void read(istream &inputStream, project& project);
 
-    // clear the console screen (windows only).
-    void clrscr();
+public:
+	//Default constructor: create a new instance without paramters
+	project();
 
-    // pause the console screen (windows only).
-    void pause();
+	//Create a new instance with project_ID
+	project(int& new_id) : project() {
+		project_id = new_id;
+	};
 
-    // print a note (/w title).
-    void print_note (const multitype& note,
-                     const multitype& note_head = "No title",
-                     bool _clrscr = true,
-                     std::ostream& out = std::cout);
+	//Create a new instance with project_ID, company name and location
+	project(const int new_id = (int)0, const string new_company_name, const string& new_site_location, const date& new_start_up_date, const date& new_start_up_end) : project() {
+		project_id = new_id;
+		company_name = new_company_name;
+		site_location = new_site_location;
+		start_up_date = new_start_up_date;
+		start_up_end = new_start_up_end;
+	};
 
-    // print a table (/w title).
-    void print_table (const table& tabl,
-                      const multitype& tabl_head = "No title",
-                      bool _nocolumn = true,
-                      bool _vertical = true,
-                      bool _clrscr = true,
-                      std::ostream& out = std::cout);
+	//Accessors
+	//Display selected project with project_id. 
+	//It will be used in job-search and edit functions
+	virtual void display_projects(const int& project_id);
 
-    // a menu of options of which users select one.
-    class select_menu
-    {
-    private:
-        table items;
-        multitype title;
+	//Modifiers
+	//Set start_up_date to given ID project
+	//It will be used in job-edit functions
+	virtual void edit_start_up_date(int& project_id, date& start_up_date);
 
-    public:
-        // constructor.
-        select_menu();
+	//Set start_up__end date to given ID project
+	//It will be used in job-edit functions
+	virtual void edit_start_up_end(int& project_id, date& start_up_end);
 
-        // add an item to the menu.
-        void add_item (const int no, const multitype& desc);
 
-        // remove an item from the menu by number.
-        bool remove_item_by_no (const int no);
+protected:
+		int project_id;
+		string company_name;
+		string site_location;
 
-        // set the title of the menu.
-        void set_title (const multitype& e);
+		date start_up_date;
+		date start_up_end;
 
-        // print menu and wait for input.
-        // pass false to 'clrscr' if you want to keep the current command lines.
-        // this function returns the selected option's No value.
-        multitype print_menu_and_wait (bool _clrscr = true, std::ostream& out = std::cout) const;
-    };
+};
 
-    // a form of requests where users respond to each.
-    class input_menu
-    {
-    private:
-        table items;
-        multitype title;
 
-    public:
-        // constructor.
-        input_menu();
+// Derived class
+class new_project : public project
+{
+public:
+	//Add new project to Job Record file in Excel
+	virtual void savetorecord(int& new_id, string& new_company_name, string& new_site_location, date& new_start_up_date, date& new_start_up_end);
 
-        // add an item to the menu.
-        // if line_input is false, the function will use istream::operator>> instead of getline.
-        void add_item (const multitype& desc, bool line_input = true);
+	//Set status tag
+	virtual void set_tag(const string& tag);
 
-        // remove an item from the menu by description.
-        bool remove_item_by_desc (const multitype& desc, bool strict = false);
 
-        // set the title of the menu.
-        void set_title (const multitype& e);
-
-        // print menu and wait for input.
-        // pass false to 'clrscr' if you want to keep the current command lines.
-        // this function returns the list of input values in the same order as in table.
-        list<multitype> print_menu_and_wait (bool _clrscr = true, std::ostream& out = std::cout) const;
-    };
-}
-
-#endif // INTERFACE_QUYENJD_H
+private:
+	// Add a status to new project: Opened, Shipped, Handovered, Paid, and Archived
+	string status;
+};
